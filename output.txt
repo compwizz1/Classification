@@ -1,0 +1,13 @@
+Doing classification
+--------------------
+data:		digits
+classifier:		naiveBayes
+using enhanced features?:	False
+training set size:	100
+using smoothing parameter k=2.000000 for naivebayes
+Extracting features...
+Training...
+Found broken key
+{0: 0.8823529411764706, 1: 0.11764705882352941}
+End of run 1
+Validating...
