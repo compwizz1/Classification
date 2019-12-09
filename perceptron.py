@@ -8,7 +8,9 @@
 
 # Perceptron implementation
 import util
+import random
 PRINT = True
+import sys
 
 class PerceptronClassifier:
   """
@@ -40,16 +42,26 @@ class PerceptronClassifier:
     datum is a counter from features to values for those features
     (and thus represents a vector a values).
     """
-    
     self.features = trainingData[0].keys() # could be useful later
     # DO NOT ZERO OUT YOUR WEIGHTS BEFORE STARTING TRAINING, OR
     # THE AUTOGRADER WILL LIKELY DEDUCT POINTS.
-    
+	#initialize weight vectors
+    #"""
+    for label in self.legalLabels:
+		for feature in self.features:
+			self.weights[label][feature] = random.choice([-1, 1])
+			self.weights[label]["Bias"] = random.choice([-1, 1])
+    #"""	
     for iteration in range(self.max_iterations):
       print "Starting iteration ", iteration, "..."
       for i in range(len(trainingData)):
-          "*** YOUR CODE HERE ***"
-          util.raiseNotDefined()
+		guess = self.classify(trainingData[i])
+		if guess[0] != trainingLabels[i]:
+			self.weights[trainingLabels[i]] += trainingData[i]
+			self.weights[trainingLabels[i]]["Bias"] -= 1
+			self.weights[guess[0]] -= trainingData[i]
+			self.weights[guess[0]]["Bias"] += 1
+    print self.weights
     
   def classify(self, data ):
     """
@@ -63,7 +75,9 @@ class PerceptronClassifier:
       vectors = util.Counter()
       for l in self.legalLabels:
         vectors[l] = self.weights[l] * datum
+        vectors[l] += self.weights[l]["Bias"]
       guesses.append(vectors.argMax())
+    #print guesses
     return guesses
 
   
