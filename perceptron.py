@@ -55,13 +55,14 @@ class PerceptronClassifier:
     for iteration in range(self.max_iterations):
       print "Starting iteration ", iteration, "..."
       for i in range(len(trainingData)):
-		guess = self.classify(trainingData[i])
+		#Wrap trainingData in an array so self.weights[l] * multiplies all the features by all the weights
+		guess = self.classify([trainingData[i]])
 		if guess[0] != trainingLabels[i]:
 			self.weights[trainingLabels[i]] += trainingData[i]
-			self.weights[trainingLabels[i]]["Bias"] -= 1
-			self.weights[guess[0]] -= trainingData[i]
-			self.weights[guess[0]]["Bias"] += 1
-    print self.weights
+			self.weights[trainingLabels[i]]["Bias"] += 1
+			self.weights[guess[0]] -= trainingData[i]	
+			self.weights[guess[0]]["Bias"] -= 1
+    #print self.weights
     
   def classify(self, data ):
     """
@@ -75,6 +76,7 @@ class PerceptronClassifier:
       vectors = util.Counter()
       for l in self.legalLabels:
         vectors[l] = self.weights[l] * datum
+        #print str(vectors[l]) + " Bias: " + str(self.weights[l]["Bias"])
         vectors[l] += self.weights[l]["Bias"]
       guesses.append(vectors.argMax())
     #print guesses
