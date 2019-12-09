@@ -77,9 +77,18 @@ class MiraClassifier:
 				#Wrap trainingData in an array so self.weights[l] * multiplies all the features by all the weights
 				guess = self.classify([trainingData[i]])
 				if guess[0] != trainingLabels[i]:
-					self.weights[trainingLabels[i]] += trainingData[i]
+					
+					tau = min(
+					C,
+					(trainingData[i] * (self.weights[guess[0]] - self.weights[trainingLabels[i]])  + 1.0)/
+					(2 * (trainingData[i] * trainingData[i]))
+					)
+					print tau
+					update = trainingData[i].copy()
+					update.multiplyAll(tau)
+					self.weights[trainingLabels[i]] += update
 					self.weights[trainingLabels[i]]["Bias"] += 1
-					self.weights[guess[0]] -= trainingData[i]	
+					self.weights[guess[0]] -= update	
 					self.weights[guess[0]]["Bias"] -= 1
 		validationguesses = self.classify(validationData)
 		guesscorrect = 0
@@ -91,7 +100,8 @@ class MiraClassifier:
 			bestC = C
 			bestweights = self.weights
 			bestGuesses = guesscorrect
-    #print self.weights
+    self.weights = bestweights
+    self.C = bestC
 
   def classify(self, data ):
     """

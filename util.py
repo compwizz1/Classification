@@ -214,7 +214,13 @@ class Counter(dict):
     divisor = float(divisor)
     for key in self:
       self[key] /= divisor
-
+  def multiplyAll(self, factor):
+    """
+    Multiplies all counts by factor
+    """
+    factor = float(factor)
+    for key in self:
+      self[key] *= factor
   def copy(self):
     """
     Returns a copy of the counter
