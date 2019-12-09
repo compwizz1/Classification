@@ -8,6 +8,7 @@
 
 # Mira implementation
 import util
+import random
 PRINT = True
 
 class MiraClassifier:
@@ -55,7 +56,42 @@ class MiraClassifier:
     representing a vector of values.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    self.features = trainingData[0].keys() # could be useful later
+	#initialize weight vectors
+    #"""
+    for label in self.legalLabels:
+		for feature in self.features:
+			self.weights[label][feature] = random.choice([-1, 1])
+			self.weights[label]["Bias"] = random.choice([-1, 1])
+    #"""
+    originalweights = self.weights	
+    bestC = 0
+    bestGuesses = 0
+    bestweights = {}
+    for C in Cgrid:
+		print "Testing C value ", C
+		self.weights = originalweights
+		for iteration in range(self.max_iterations):
+			print "Starting iteration ", iteration, "..."
+			for i in range(len(trainingData)):
+				#Wrap trainingData in an array so self.weights[l] * multiplies all the features by all the weights
+				guess = self.classify([trainingData[i]])
+				if guess[0] != trainingLabels[i]:
+					self.weights[trainingLabels[i]] += trainingData[i]
+					self.weights[trainingLabels[i]]["Bias"] += 1
+					self.weights[guess[0]] -= trainingData[i]	
+					self.weights[guess[0]]["Bias"] -= 1
+		validationguesses = self.classify(validationData)
+		guesscorrect = 0
+		for i in range(len(validationguesses)):
+			if validationguesses[i] == validationLabels[i]:
+				guesscorrect += 1
+		if guesscorrect > bestGuesses:
+			print C, " is better than ", bestC
+			bestC = C
+			bestweights = self.weights
+			bestGuesses = guesscorrect
+    #print self.weights
 
   def classify(self, data ):
     """
@@ -69,6 +105,7 @@ class MiraClassifier:
       vectors = util.Counter()
       for l in self.legalLabels:
         vectors[l] = self.weights[l] * datum
+        vectors[l] += self.weights[l]["Bias"]
       guesses.append(vectors.argMax())
     return guesses
 
