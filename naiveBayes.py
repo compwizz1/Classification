@@ -72,23 +72,28 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
 				#print str(feature) + str(label) + ' ' + str(dict[(feature, label)])
     labelCount = util.Counter()
     for i in range(len(trainingData)):
+		#increment occurrences of each label found in the training data
 		label = trainingLabels[i]
 		labelCount[label] += 1
 		for feature in trainingData[i]:
 			#increment dictionary value by 1 when a feature label combination with a value is found
 			dict[(feature, label)][trainingData[i][feature]] += 1
+    #normalize labelCount to get P(y) for each label y, or the prior probability 
     self.prior = util.normalize(labelCount)
 	
     bestk = 0
     bestcond = {}
     topguesses = 0
+	#iterate through each k to find the best k
     for k in kgrid:
-		#temporary set condprobs to condprobs of the currenty k value
+		#empty cond probs
 		self.condprobs = {} 
+		#smooth data
 		for feature_label in dict:
 			tmpcounter = dict[feature_label] 
 			#print feature_label
 			tmpcounter.incrementAll(tmpcounter.keys(), k)
+			#set condprobs to cond probs with current k value
 			self.condprobs[feature_label] = util.normalize(tmpcounter)
 		guesses = self.classify(validationData)
 		guesscorrect = 0
@@ -97,7 +102,7 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
 			if guesses[i] == validationLabels[i]:
 				guesscorrect += 1
 		if guesscorrect > topguesses:
-			print "Guess " +str(k) + " is better than " + str(bestk)
+			print "Guess ",k ," is better than ",bestk
 			topguesses = guesscorrect
 			bestcond = self.condprobs
 			bestk = k
@@ -129,8 +134,10 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     """
     logJoint = util.Counter()
     "*** YOUR CODE HERE ***"
+	#Adds log(P(y)) to calculate P(y|f1,f2...)
     for label in self.legalLabels:
 		logJoint[label] += math.log(self.prior[label])
+	#Adds log(P(f1|y)), log(P(f2|y))... to calculate P(y|f1, f2...)
     for key in datum:
 		#if key == (7, 3):
 			#print self.condprobs[key, 0]
