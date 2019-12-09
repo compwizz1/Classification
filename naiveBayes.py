@@ -23,7 +23,7 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     self.type = "naivebayes"
     self.k = 1 # this is the smoothing parameter, ** use it in your train method **
     self.automaticTuning = False # Look at this flag to decide whether to choose k automatically ** use this in your train method **
-    
+    self.prior = util.Counter()
   def setSmoothing(self, k):
     """
     This is used by the main method to change the smoothing parameter before training.
@@ -128,9 +128,9 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     self.legalLabels.
     """
     logJoint = util.Counter()
-    
     "*** YOUR CODE HERE ***"
-	
+    for label in self.legalLabels:
+		logJoint[label] += math.log(self.prior[label])
     for key in datum:
 		#if key == (7, 3):
 			#print self.condprobs[key, 0]
