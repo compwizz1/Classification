@@ -61,8 +61,16 @@ class MiraClassifier:
     #"""
     for label in self.legalLabels:
 		for feature in self.features:
-			self.weights[label][feature] = random.choice([-1, 1])
-			self.weights[label]["Bias"] = random.choice([-1, 1])
+			#Accuracy gets way worse if vectors are randomized from -1 to 1 using autotune because it 
+			#chooses the C value from .002 to .008 too often, so it's not really learning with accurate weight updates.
+			#A zero initialized vector works much better for low values of C, but randomized vector values might work
+			#with a smaller initial range or larger C values.
+
+			#It seems like if the initial range of weight vector values is small enough such that min(Cgrid) > range, 
+			#then similar results happen compared to a zero vector. A higher bound is possible, but the lower bound is safe
+			#and randomizes weight vectors between runs
+			self.weights[label][feature] = random.uniform(-min(Cgrid) * .5, min(Cgrid) *.5)
+			self.weights[label]["Bias"] = random.uniform(-min(Cgrid) * .5, min(Cgrid) * .5)
     #"""
     originalweights = self.weights	
     bestC = 0
