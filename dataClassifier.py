@@ -71,7 +71,214 @@ def enhancedFeatureExtractorDigit(datum):
   features =  basicFeatureExtractorDigit(datum)
 
   "*** YOUR CODE HERE ***"
-  
+  """
+  for x in range(DIGIT_DATUM_WIDTH):
+        grey = 0
+        for y in range(DIGIT_DATUM_HEIGHT):
+            if (datum.getPixel(x, y) == 1):
+                grey += datum.getPixel(x, y)
+        features[(x, y, 2, grey)] = 1
+        for i in range(DIGIT_DATUM_HEIGHT):
+            if (i != grey):
+                features[(x, y, 2, i)] = 0
+
+    for x in range(DIGIT_DATUM_HEIGHT):
+        grey = 0
+        for y in range(DIGIT_DATUM_WIDTH):
+            if (datum.getPixel(y, x) == 1):
+                grey += datum.getPixel(y, x)
+        features[(y, x, 3, grey)] = 1
+        for i in range(DIGIT_DATUM_WIDTH):
+            if (i != grey):
+                features[(y, x, 3, i)] = 0
+
+    flag = 0
+    starting_row = 0
+    ending_row = 0
+    starting_column = 0
+    ending_column = 0
+
+    # check start row
+    for x in range(DIGIT_DATUM_HEIGHT):
+        flag = 0
+        for y in range(DIGIT_DATUM_WIDTH):
+            if (datum.getPixel(y, x) > 0):
+                flag = 1
+                starting_row = x
+                break
+        if flag != 0:
+            break
+
+    # check end row
+    for x in range(DIGIT_DATUM_HEIGHT):
+        flag = 0
+        for y in range(DIGIT_DATUM_WIDTH):
+            if (datum.getPixel(DIGIT_DATUM_WIDTH - y - 1, DIGIT_DATUM_HEIGHT - x - 1) > 0):
+                flag = 1
+                ending_row = DIGIT_DATUM_HEIGHT - x - 1
+                break
+        if flag != 0:
+            break
+
+    # check start column
+    for x in range(DIGIT_DATUM_WIDTH):
+        flag = 0
+        for y in range(DIGIT_DATUM_HEIGHT):
+            if (datum.getPixel(x, y) > 0):
+                flag = 1
+                starting_column = x
+                break
+        if flag != 0:
+            break
+
+    # check end column
+    for x in range(DIGIT_DATUM_WIDTH):
+        flag = 0
+        for y in range(DIGIT_DATUM_HEIGHT):
+            if (datum.getPixel(DIGIT_DATUM_WIDTH - x - 1, DIGIT_DATUM_HEIGHT - y - 1) > 0):
+                flag = 1
+                ending_column = x
+                break
+        if flag != 0:
+            break
+
+    # print("start column is {}, end column is {}".format(starting_column, ending_column))
+    # print("start row is {}, end row is {}".format(starting_row, ending_row))
+    # ['black', 0, 0, i - 1, i, num] means row i -1 has num more non-white pixels than row i
+    previous = 0
+    current = 0
+    for i in range(starting_row, ending_row + 1):
+        previous = current
+        current = 0
+        for j in range(starting_column, ending_column + 1):
+            if (datum.getPixel(j, i) > 0):
+                current += 1
+        if (abs(previous - current) == 0):
+            features[('black', 'row', i - 1 - starting_row, i - starting_row, 0)] = 1
+            features[('black', 'row', i - 1 - starting_row, i - starting_row, 1)] = 0
+            features[('black', 'row', i - 1 - starting_row, i - starting_row, 2)] = 0
+            features[('black', 'row', i - 1 - starting_row, i - starting_row, -1)] = 0
+            features[('black', 'row', i - 1 - starting_row, i - starting_row, -2)] = 0
+        elif ((abs(previous - current) <= 3)):
+            if (previous - current > 0):
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, 0)] = 0
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, 1)] = 0
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, 2)] = 0
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, -1)] = 1
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, -2)] = 0
+            else:
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, 0)] = 0
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, 1)] = 1
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, 2)] = 0
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, -1)] = 0
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, -2)] = 0
+        else:
+            if (previous - current > 0):
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, 0)] = 0
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, 1)] = 0
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, 2)] = 0
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, -1)] = 0
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, -2)] = 1
+            else:
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, 0)] = 0
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, 1)] = 0
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, 2)] = 1
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, -1)] = 0
+                features[('black', 'row', i - 1 - starting_row, i - starting_row, -2)] = 0
+
+    # ['white', 0, 0, i - 1, i, num] means row i -1 has num more white pixels than row i
+    current = 0
+    for i in range(starting_row, ending_row + 1):
+        previous = current
+        current = 0
+        for j in range(starting_column, ending_column + 1):
+            rs = starting_row
+            re = starting_row
+            if (datum.getPixel(j, i) != 0):
+                for k in range(j, ending_column):
+                    if (datum.getPixel(j, i) == 0):
+                        rs = k
+                        break
+                for k in range(rs, ending_column):
+                    if (datum.getPixel(j, i) != 0):
+                        re = k - 1
+                if (re > rs):
+                    current = re - rs
+                else:
+                    current = 0
+        if (abs(previous - current) == 0):
+            features[('white', 'row', i - 1 - starting_row, i - starting_row, 0)] = 1
+            features[('white', 'row', i - 1 - starting_row, i - starting_row, 1)] = 0
+            features[('white', 'row', i - 1 - starting_row, i - starting_row, 2)] = 0
+            features[('white', 'row', i - 1 - starting_row, i - starting_row, -1)] = 0
+            features[('white', 'row', i - 1 - starting_row, i - starting_row, -2)] = 0
+        elif ((abs(previous - current) <= 3)):
+            if (previous - current > 0):
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, 0)] = 0
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, 1)] = 0
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, 2)] = 0
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, -1)] = 1
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, -2)] = 0
+            else:
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, 0)] = 0
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, 1)] = 1
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, 2)] = 0
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, -1)] = 0
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, -2)] = 0
+        else:
+            if (previous - current > 0):
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, 0)] = 0
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, 1)] = 0
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, 2)] = 0
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, -1)] = 0
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, -2)] = 1
+            else:
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, 0)] = 0
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, 1)] = 0
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, 2)] = 1
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, -1)] = 0
+                features[('white', 'row', i - 1 - starting_row, i - starting_row, -2)] = 0
+
+    current = 0
+    for i in range(starting_column, ending_column + 1):
+        previous = current
+        current = 0
+        for j in range(starting_row, ending_row + 1):
+            if (datum.getPixel(i, j) > 0):
+                current += 1
+        if (abs(previous - current) == 0):
+            features[('black', 'column', i - 1 - starting_column, i - starting_column, 0)] = 1
+            features[('black', 'column', i - 1 - starting_column, i - starting_column, 1)] = 0
+            features[('black', 'column', i - 1 - starting_column, i - starting_column, 2)] = 0
+            features[('black', 'column', i - 1 - starting_column, i - starting_column, -1)] = 0
+            features[('black', 'column', i - 1 - starting_column, i - starting_column, -2)] = 0
+        elif ((abs(previous - current) <= 3)):
+            if (previous - current > 0):
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, 0)] = 0
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, 1)] = 0
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, 2)] = 0
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, -1)] = 1
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, -2)] = 0
+            else:
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, 0)] = 0
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, 1)] = 1
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, 2)] = 0
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, -1)] = 0
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, -2)] = 0
+        else:
+            if (previous - current > 0):
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, 0)] = 0
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, 1)] = 0
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, 2)] = 0
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, -1)] = 0
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, -2)] = 1
+            else:
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, 0)] = 0
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, 1)] = 0
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, 2)] = 1
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, -1)] = 0
+                features[('black', 'column', i - 1 - starting_column, i - starting_column, -2)] = 0
+  """
   return features
 
 
