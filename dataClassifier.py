@@ -524,7 +524,10 @@ def runClassifier(args, options):
   
   # Conduct training and testing
   print "Training..."
+  start = timeit.default_timer()
   classifier.train(trainingData, trainingLabels, validationData, validationLabels)
+  stop = timeit.default_timer()
+  print('Time: ', stop - start)  
   print "Validating..."
   guesses = classifier.classify(validationData)
   correct = [guesses[i] == validationLabels[i] for i in range(len(validationLabels))].count(True)
@@ -555,12 +558,12 @@ def runClassifier(args, options):
 
 if __name__ == '__main__':
   # Read input
-  start = timeit.default_timer()
+
   args, options = readCommand( sys.argv[1:] ) 
   
 
   # Run classifier
   runClassifier(args, options)
-  stop = timeit.default_timer()
-  print('Time: ', stop - start)  
+
+
 
