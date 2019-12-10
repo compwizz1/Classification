@@ -16,6 +16,7 @@ import mira
 import samples
 import sys
 import util
+import timeit
 
 TEST_SET_SIZE = 100
 DIGIT_DATUM_WIDTH=28
@@ -347,6 +348,12 @@ def runClassifier(args, options):
 
 if __name__ == '__main__':
   # Read input
+  start = timeit.default_timer()
   args, options = readCommand( sys.argv[1:] ) 
+  
+
   # Run classifier
   runClassifier(args, options)
+  stop = timeit.default_timer()
+  print('Time: ', stop - start)  
+
